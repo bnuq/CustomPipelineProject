@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 // Rendering One Camera 목적
-public class CameraRenderer
+public partial class CameraRenderer
 {
     private static readonly string COMMAND_BUFFER_NAME = "Render_Camera";
 
@@ -31,6 +31,8 @@ public class CameraRenderer
         this.context = context;
         this.camera = camera;
 
+        this.PrepareBuffer();
+        this.PrepareForSceneWindow();
         if (!this.Cull())
         {
             return;
@@ -38,6 +40,8 @@ public class CameraRenderer
 
         this.Setup();
         this.DrawVisibleGeometry();
+        this.DrawUnsupportedShaders();
+        this.DrawGizmos();
         this.Submit();
     }
 
@@ -48,7 +52,7 @@ public class CameraRenderer
         this.context.SetupCameraProperties(this.camera);
         this.commandBuffer.ClearRenderTarget(true, true, Color.clear);
 
-        this.commandBuffer.BeginSample(COMMAND_BUFFER_NAME);
+        this.commandBuffer.BeginSample(this.SampleName);
 
         this.ExecuteBuffer();
 
@@ -89,7 +93,7 @@ public class CameraRenderer
     // 스케줄링한 Commands 를 submit 해야 한다
     private void Submit()
     {
-        this.commandBuffer.EndSample(COMMAND_BUFFER_NAME);
+        this.commandBuffer.EndSample(this.SampleName);
         this.ExecuteBuffer();
         this.context.Submit();
     }
