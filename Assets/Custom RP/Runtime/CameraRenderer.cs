@@ -50,7 +50,14 @@ public partial class CameraRenderer
     {
         // Camera property 를 먼저 세팅하고 context 를 클리어 하는 게 더 효율적이다?
         this.context.SetupCameraProperties(this.camera);
-        this.commandBuffer.ClearRenderTarget(true, true, Color.clear);
+
+        var flags = this.camera.clearFlags; // how to clear background
+
+        this.commandBuffer.ClearRenderTarget(
+            flags <= CameraClearFlags.Depth, 
+            flags <= CameraClearFlags.Color, 
+            flags <= CameraClearFlags.Color ? this.camera.backgroundColor.linear
+                                            : Color.clear);
 
         this.commandBuffer.BeginSample(this.SampleName);
 
