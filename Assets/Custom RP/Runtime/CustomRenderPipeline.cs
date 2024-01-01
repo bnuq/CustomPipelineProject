@@ -4,28 +4,35 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// CustomRenderPipeline Asset À» ÅëÇØ¼­ ¸®ÅÏÇÏ·Á´Â RenderPipeline Instance ÀÚÃ¼
+/// CustomRenderPipeline Asset ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ RenderPipeline Instance ï¿½ï¿½Ã¼
 /// 
 /// </summary>
 public class CustomRenderPipeline : RenderPipeline
 {
-    // URP -> Scriptable Renderer ¿Í µ¿ÀÏÇÑ ¿ªÇÒ?
-    // ¿ø·¡ ScriptableRenderContext ÇÏ³ª¸¦ ScriptableRenderer °¡ ±×·ÁÁÖ³ª?
+    // URP -> Scriptable Renderer ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½?
+    // ï¿½ï¿½ï¿½ï¿½ ScriptableRenderContext ï¿½Ï³ï¿½ï¿½ï¿½ ScriptableRenderer ï¿½ï¿½ ï¿½×·ï¿½ï¿½Ö³ï¿½?
     private CameraRenderer cameraRenderer = new();
 
 
+    public CustomRenderPipeline () 
+    {
+        // SRP Batcher ì‚¬ìš©ì„ ìœ„í•œ ì„¸íŒ…
+		GraphicsSettings.useScriptableRenderPipelineBatching = true;
+	}
+
+
     // Create a concrete pipeline
-    // Camera[] ÀÌ allocate memory every frame
+    // Camera[] ï¿½ï¿½ allocate memory every frame
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {
         
     }
 
-    // ´õ ³ªÀº ¹öÀü
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     // Each Frame Unity Invokes 'Render' on the RP instance
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
     {
-        // Scriptable Render Context -> ¿£Áø¿¡ ·»´õ¸µÇÏ´Â µ¥ ÇÊ¿äÇÑ context Á¤º¸? connection?
+        // Scriptable Render Context -> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ context ï¿½ï¿½ï¿½ï¿½? connection?
         
         foreach (var camera in cameras)
         {
