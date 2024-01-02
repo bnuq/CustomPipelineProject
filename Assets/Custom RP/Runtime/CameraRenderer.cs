@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-// Rendering One Camera ¸ñÀû
+// Rendering One Camera ï¿½ï¿½ï¿½ï¿½
 public partial class CameraRenderer
 {
     private static readonly string COMMAND_BUFFER_NAME = "Render_Camera";
 
-    // Unlit shader pass ÀÌ¸§
+    // Unlit shader pass ï¿½Ì¸ï¿½
     private static readonly ShaderTagId unlitShaderTagId = 
         new ShaderTagId("SRPDefaultUnlit");
 
@@ -16,8 +17,8 @@ public partial class CameraRenderer
     private ScriptableRenderContext context;
     private Camera camera;
 
-    // Context ¿¡ ¿øÇÏ´Â ¸í·ÉÀ» ½×¾ÆµÎ±â´Â ÇÏ´Âµ¥, ¹Ù·Î ½ÇÇàÇÏ´Â °Ç ¾Æ´Ï°í ½×¾Æµ×´Ù°¡ submit ÇÏ´Â ÇüÅÂ
-    // Context ¿¡ ½×´Â ¸í·É ÀÚÃ¼¸¦, ³ªÁß¿¡ ³Ö°í ½Í´Ù? ±×·¡¼­ Command Buffer »ç¿ë?
+    // Context ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¾ÆµÎ±ï¿½ï¿½ ï¿½Ï´Âµï¿½, ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ ï¿½Æ´Ï°ï¿½ ï¿½×¾Æµ×´Ù°ï¿½ submit ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
+    // Context ï¿½ï¿½ ï¿½×´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½, ï¿½ï¿½ï¿½ß¿ï¿½ ï¿½Ö°ï¿½ ï¿½Í´ï¿½? ï¿½×·ï¿½ï¿½ï¿½ Command Buffer ï¿½ï¿½ï¿½?
     private CommandBuffer commandBuffer = new CommandBuffer
     {
         name = COMMAND_BUFFER_NAME,
@@ -26,7 +27,8 @@ public partial class CameraRenderer
     private CullingResults cullingResults;
 
 
-    public void Render(ScriptableRenderContext context, Camera camera)
+    public void Render(ScriptableRenderContext context, Camera camera,
+                       bool useDynamicBatching, bool useGPUInstancing)
     {
         this.context = context;
         this.camera = camera;
@@ -39,7 +41,7 @@ public partial class CameraRenderer
         }
 
         this.Setup();
-        this.DrawVisibleGeometry();
+        this.DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         this.DrawUnsupportedShaders();
         this.DrawGizmos();
         this.Submit();
@@ -48,7 +50,7 @@ public partial class CameraRenderer
 
     private void Setup()
     {
-        // Camera property ¸¦ ¸ÕÀú ¼¼ÆÃÇÏ°í context ¸¦ Å¬¸®¾î ÇÏ´Â °Ô ´õ È¿À²ÀûÀÌ´Ù?
+        // Camera property ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ context ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½?
         this.context.SetupCameraProperties(this.camera);
 
         var flags = this.camera.clearFlags; // how to clear background
@@ -65,30 +67,25 @@ public partial class CameraRenderer
 
     }
 
-    private void DrawVisibleGeometry()
+    private void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
-        // Ä«¸Þ¶ó¿¡ Àû¿ëµÈ sorting setting À» °¡Á®¿Â´Ù?
         var sortingSettings = new SortingSettings(this.camera)
         {
             criteria = SortingCriteria.CommonOpaque
         };
 
-        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
+        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings)
+        {
+            enableDynamicBatching = useDynamicBatching,
+            enableInstancing = useGPUInstancing,
+        };
 
-        // ¾î¶² render queue µéÀ» Çã°¡ÇÏ´Â Áö?
-        //var filteringSettings = new FilteringSettings(RenderQueueRange.all);  opaque, transparent ±¸º° ¾øÀÌ ¸ðµÎ ±×¸®±â
-
-        // opaque ¸¸ ±×¸®±â
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
-        // culling result ¸¦ ÀÌ¿ë, Ä«¸Þ¶ó¿¡ ´ã±ä geometry ¸¸ ±×¸² -> ÀÌ ¸í·Éµµ context ¿¡ ³Ñ±è?
         this.context.DrawRenderers(this.cullingResults, ref drawingSettings, ref filteringSettings);
 
-        // Ä«¸Þ¶ó¿¡ ´ã±ä ½ºÄ«ÀÌ ¹Ú½º¸¦ ±×¸² -> context ¿¡ ³Ñ±è?
         this.context.DrawSkybox(this.camera);
 
-        // skybox ¸¦ ±×¸®°í ³ª¼­ ºÒÅõ¸íÇÑ °´Ã¼µé ±×¸®±â
-        // ºÒÅõ¸íÇÑ °´Ã¼¸¦ ±×¸®±â À§ÇÑ ¼¼ÆÃÀ¸·Î ¸ðµÎ º¯°æ
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
 
@@ -97,7 +94,7 @@ public partial class CameraRenderer
         this.context.DrawRenderers(this.cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
-    // ½ºÄÉÁÙ¸µÇÑ Commands ¸¦ submit ÇØ¾ß ÇÑ´Ù
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½ Commands ï¿½ï¿½ submit ï¿½Ø¾ï¿½ ï¿½Ñ´ï¿½
     private void Submit()
     {
         this.commandBuffer.EndSample(this.SampleName);
@@ -107,17 +104,17 @@ public partial class CameraRenderer
 
     private void ExecuteBuffer()
     { 
-        // command buffer ¿¡ ½×¾ÆµÐ ¸í·ÉµéÀ» context ·Î ³Ñ±è
+        // command buffer ï¿½ï¿½ ï¿½×¾Æµï¿½ ï¿½ï¿½ï¿½Éµï¿½ï¿½ï¿½ context ï¿½ï¿½ ï¿½Ñ±ï¿½
         this.context.ExecuteCommandBuffer(this.commandBuffer);
         this.commandBuffer.Clear();
     }
 
     private bool Cull()
     {
-        // culling ¿¡ ÇÊ¿äÇÑ Á¤º¸¸¦ Ä«¸Þ¶ó¿¡¼­ ¹Ù·Î °¡Á®¿Ã ¼ö ÀÖ´Ù
+        // culling ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ó¿¡¼ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½
         if (this.camera.TryGetCullingParameters(out var cullingParameters))
         {
-            // Ä«¸Þ¶ó¿¡¼­ ¾òÀº culling parameters -> context ¿¡ ³Ö¾î¼­ culling result ¸¦ ¾ò´Â´Ù?
+            // Ä«ï¿½Þ¶ó¿¡¼ï¿½ ï¿½ï¿½ï¿½ï¿½ culling parameters -> context ï¿½ï¿½ ï¿½Ö¾î¼­ culling result ï¿½ï¿½ ï¿½ï¿½Â´ï¿½?
             this.cullingResults = this.context.Cull(ref cullingParameters);
             return true;
         }

@@ -4,19 +4,28 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// RenderPipelineAsset = Unity ¿£ÁøÀÌ »ç¿ëÇÒ pipeline object instance
-/// asset ´Â handle, settings ¸¦ ÀúÀåÇØµÎ´Â Àå¼Ò
-/// RPAsset À» ±¸ÇöÇÏ¸é¼­ ±× settings ¸¦ ¼³Á¤ÇÏ´Â °ÍÀÌ´Ù
-/// Unity ÀÌ ¿£ÁøÀÌ ÀÌ CustomRPAsset À» ÂüÁ¶ÇÏ°Ô ÇØ -> ³»°¡ ¼³Á¤ÇÑ °ªÀ» pipeline ¿¡ ³Ö°Ô ÇÑ´Ù
+/// RenderPipelineAsset = Unity ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ pipeline object instance
+/// asset ï¿½ï¿½ handle, settings ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ØµÎ´ï¿½ ï¿½ï¿½ï¿½
+/// RPAsset ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸é¼­ ï¿½ï¿½ settings ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½
+/// Unity ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ CustomRPAsset ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ pipeline ï¿½ï¿½ ï¿½Ö°ï¿½ ï¿½Ñ´ï¿½
 /// </summary>
 [CreateAssetMenu(menuName = "Rendering/Custom_Render_Pipeline")]
 public class CustomRenderPipelineAsset : RenderPipelineAsset
 {
-    // Unity ¿£Áø¿¡ Pipeline ¼³Á¤, handle À» ³Ñ±è, ÂüÁ¶ÇÏ°Ô ÇÔ
+
+    [SerializeField]
+    private bool useDynamicBatching = true;
+    [SerializeField]
+    private bool useGPUInstancing = true;
+    [SerializeField]
+    private bool useSRPBatcher = true;
+
+
+    // Unity ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Pipeline ï¿½ï¿½ï¿½ï¿½, handle ï¿½ï¿½ ï¿½Ñ±ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½
     protected override RenderPipeline CreatePipeline()
     {
-        // ³»°¡ ¸¸µç RenderPipeline À» ¸®ÅÏÇÏµµ·Ï 
-        return new CustomRenderPipeline();
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ RenderPipeline ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ 
+        return new CustomRenderPipeline(useDynamicBatching, useGPUInstancing, useSRPBatcher);
     }
 
     // Start is called before the first frame update

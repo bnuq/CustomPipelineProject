@@ -9,15 +9,19 @@ using UnityEngine.Rendering;
 /// </summary>
 public class CustomRenderPipeline : RenderPipeline
 {
-    // URP -> Scriptable Renderer �� ������ ����?
-    // ���� ScriptableRenderContext �ϳ��� ScriptableRenderer �� �׷��ֳ�?
     private CameraRenderer cameraRenderer = new();
 
+    private bool useDynamicBatching = true;
+    private bool useGPUInstancing = true;
+    
 
-    public CustomRenderPipeline () 
+    public CustomRenderPipeline (bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher) 
     {
+        this.useDynamicBatching = useDynamicBatching;
+        this.useGPUInstancing = useGPUInstancing;
+
         // SRP Batcher 사용을 위한 세팅
-		GraphicsSettings.useScriptableRenderPipelineBatching = true;
+		GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
 	}
 
 
@@ -36,7 +40,7 @@ public class CustomRenderPipeline : RenderPipeline
         
         foreach (var camera in cameras)
         {
-            cameraRenderer.Render(context, camera);
+            cameraRenderer.Render(context, camera, this.useDynamicBatching, this.useGPUInstancing);
         }
     }
 
