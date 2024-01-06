@@ -4,21 +4,18 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-// Rendering One Camera ����
 public partial class CameraRenderer
 {
     private static readonly string COMMAND_BUFFER_NAME = "Render_Camera";
 
-    // Unlit shader pass �̸�
-    private static readonly ShaderTagId unlitShaderTagId = 
-        new ShaderTagId("SRPDefaultUnlit");
+    private static readonly ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+    private static readonly ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");
 
     
     private ScriptableRenderContext context;
     private Camera camera;
 
-    // Context �� ���ϴ� ������ �׾Ƶα�� �ϴµ�, �ٷ� �����ϴ� �� �ƴϰ� �׾Ƶ״ٰ� submit �ϴ� ����
-    // Context �� �״� ���� ��ü��, ���߿� �ְ� �ʹ�? �׷��� Command Buffer ���?
+
     private CommandBuffer commandBuffer = new CommandBuffer
     {
         name = COMMAND_BUFFER_NAME,
@@ -79,6 +76,7 @@ public partial class CameraRenderer
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing,
         };
+        drawingSettings.SetShaderPassName(1, litShaderTagId);
 
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
