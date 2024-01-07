@@ -22,6 +22,9 @@ public class CustomRenderPipeline : RenderPipeline
 
         // SRP Batcher 사용을 위한 세팅
 		GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
+
+        // final color, convert to linear space
+        GraphicsSettings.lightsUseLinearIntensity = true;
 	}
 
 

@@ -29,6 +29,7 @@ Shader "Custom_RP/Unlit"
 			ZWrite [_ZWrite]
 
 			HLSLPROGRAM
+			#pragma target 3.5
 			#pragma shader_feature _CLIPPING
 			// GPU Instancing 을 사용하기 위해서
 			#pragma multi_compile_instancing
