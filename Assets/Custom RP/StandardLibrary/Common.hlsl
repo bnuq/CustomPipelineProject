@@ -2,6 +2,7 @@
 #define CUSTOM_COMMON_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "UnityInput.hlsl"
 
 // float3 TransformObjectToWorld (float3 positionOS) 
@@ -33,4 +34,10 @@
 // Unity 에서 제공하는 TransformObjectToWorld, TransformWorldToHClip 를 사용
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 	
+
+float Square (float v) {
+	return v * v;
+}
+
+
 #endif

@@ -41,4 +41,6 @@ Shader "Custom_RP/Unlit"
 			ENDHLSL
 		}
 	}
+
+	CustomEditor "CustomShaderGUI"
 }
