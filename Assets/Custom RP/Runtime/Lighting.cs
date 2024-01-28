@@ -21,21 +21,30 @@ public class Lighting
 	};
 	
     private CullingResults cullingResults;
+    private Shadows shadows = new();
 
 
-	public void Setup (ScriptableRenderContext context, CullingResults cullingResults) 
+	public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings) 
     {
         this.cullingResults = cullingResults;
+        this.shadows.Setup(context, cullingResults, shadowSettings);
 
 		buffer.BeginSample(bufferName); // Adds a command to begin profile sampling.
         this.SetupLights();             // Lighting 계산에 필요한 동작 ~ Command 를 설정하고
 		buffer.EndSample(bufferName);
+
+        this.shadows.Render();
 
         // Command Buffer 내 명령어 실행 ~ during ScriptableRenderContext.Submit
 		context.ExecuteCommandBuffer(buffer);
 		buffer.Clear();
 	}
 	
+    public void Cleanup() 
+    {
+		shadows.Cleanup();
+	}
+
 
     private void SetupLights()
     {
@@ -70,5 +79,7 @@ public class Lighting
 		dirLightColors[index] = visibleLight.finalColor;
         // matrix 의 3번째 column 이 광원의 방향?
 		dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
+
+        shadows.ReserveDirectionalShadows(visibleLight.light, index);
     }
 }

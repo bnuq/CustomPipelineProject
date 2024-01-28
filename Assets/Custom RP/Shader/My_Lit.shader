@@ -24,13 +24,13 @@ Shader "Custom_RP/Lit"
 
 	SubShader
 	{
-		Tags 
-		{
-			"LightMode" = "CustomLit"
-		}
-		
 		Pass 
 		{
+			Tags 
+			{
+				"LightMode" = "CustomLit"
+			}
+
 			// Alpha Blending
 			Blend [_SrcBlend] [_DstBlend]
 			// ZBuffer Writing
@@ -49,6 +49,25 @@ Shader "Custom_RP/Lit"
 			#pragma vertex LitPassVertex
 			#pragma fragment LitPassFragment
 			#include "LitPass.hlsl"
+			ENDHLSL
+		}
+
+		Pass
+		{
+			Tags
+			{
+				"LightMode" = "ShadowCaster"  // Unity Engine 에서 ShadowCaster pass 가 있어야 DrawShadows 를 실행한다
+			}
+
+			ColorMask 0
+
+			HLSLPROGRAM
+			#pragma target 3.5
+			#pragma shader_feature _CLIPPING
+			#pragma multi_compile_instancing
+			#pragma vertex ShadowCasterPassVertex
+			#pragma fragment ShadowCasterPassFragment
+			#include "ShadowCasterPass.hlsl"
 			ENDHLSL
 		}
 	}
