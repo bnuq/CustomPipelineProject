@@ -1,8 +1,8 @@
 #ifndef CUSTOM_UNITY_INPUT_INCLUDED
 #define CUSTOM_UNITY_INPUT_INCLUDED
 
-// Uniform Value
-// unity engine 에 의해서 자동으로 들어오는 값
+// SRP Batcher 를 쓰기 위해서, Unity Engine 에 의해 받은 값들을
+// Constant Buffer 에 넣어주는 역할
 CBUFFER_START(UnityPerDraw)
 	float4x4 unity_ObjectToWorld;
 	float4x4 unity_WorldToObject;

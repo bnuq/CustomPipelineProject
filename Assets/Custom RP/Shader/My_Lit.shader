@@ -2,9 +2,10 @@ Shader "Custom_RP/Lit"
 {
 	Properties 
 	{
+		/// [추가 설정] PropertyName, Inspector 에 보여지는 이름, 타입 = 기본 값 
+
 		_BaseMap("Texture", 2D) = "white" {}
 		_BaseColor("Color", Color) = (0.5, 0.5, 0.5, 1.0)
-
 
 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
 		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend", Float) = 0
@@ -13,10 +14,9 @@ Shader "Custom_RP/Lit"
 
 		_Cutoff ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
+		// 셰이더에서 사용하는 키워드 / 프로퍼티 이름
 		[Toggle(_CLIPPING)] _Clipping ("Alpha Clipping", Float) = 0
-
 		[Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha ("Premultiply Alpha", Float) = 0
-
 
 		_Metallic ("Metallic", Range(0, 1)) = 0
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
@@ -31,13 +31,15 @@ Shader "Custom_RP/Lit"
 		
 		Pass 
 		{
+			// Alpha Blending
 			Blend [_SrcBlend] [_DstBlend]
-
-			// Transparent 색깔을 그린다면, z buffer 를 사용하지 않는다
+			// ZBuffer Writing
 			ZWrite [_ZWrite]
 
 			HLSLPROGRAM
 			#pragma target 3.5
+
+			// HLSL 에서 사용할 셰이더 키워드 선언 및 사용 <- shader_feature, multi_compile
 			#pragma shader_feature _CLIPPING
 			#pragma shader_feature _PREMULTIPLY_ALPHA
 			// GPU Instancing 을 사용하기 위해서

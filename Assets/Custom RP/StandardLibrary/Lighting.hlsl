@@ -1,13 +1,9 @@
 #ifndef CUSTOM_LIGHTING_INCLUDED
 #define CUSTOM_LIGHTING_INCLUDED
 
-#include "Light.hlsl"
-#include "Surface.hlsl"
-#include "BRDF.hlsl"
 
 float3 IncomingLight (Surface surface, Light light) 
 {
-	// Surface 에 얼마나 많은 Light 가 들어오는 지
 	return saturate(dot(surface.normal, light.direction)) * light.color;
 }
 
@@ -22,6 +18,8 @@ float3 GetLighting (Surface surface, BRDF brdf)
 
 	for (int i = 0; i < GetDirectionalLightCount(); i++)
 	{
+		// 광원 정보를 가져와서 GetLighting 진행
+		// 광원 정보는 언제 GPU 로 입력되었나? = Pipeline 을 통해서 입력됨
 		color += GetLighting(surface, brdf, GetDirectionalLight(i));
 	}
 	

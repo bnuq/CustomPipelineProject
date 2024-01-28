@@ -8,9 +8,11 @@
 #include "../StandardLibrary/Lighting.hlsl"
 
 
-TEXTURE2D(_BaseMap);
-SAMPLER(sampler_BaseMap);
+// 매크로
+TEXTURE2D(_BaseMap);        // 프로퍼티에서 입력한 _BaseMap
+SAMPLER(sampler_BaseMap);   // 유니티 엔진 Inspector 에서 설정한 샘플링 설정을 사용하겠다
 
+// GPU Instancing
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
@@ -20,7 +22,6 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 
-
 struct Attributes
 {
     float3 positionOS : POSITION;
@@ -28,7 +29,6 @@ struct Attributes
     float2 baseUV : TEXCOORD0;
     UNITY_VERTEX_INPUT_INSTANCE_ID   // object index
 };
-
 
 struct Varyings
 {
@@ -74,22 +74,19 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     // texture 와 basecolor 의 곱 = 최종 색깔
 	float4 base = baseMap * baseColor;
     
-    // clip 이라는 함수가 있어
-	#if defined(_CLIPPING)
+	#if defined(_CLIPPING)  // 셰이더 키워드
 		clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
 	#endif
 
     
     Surface surface;
+
     surface.normal = normalize(input.normalWS);
-
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
-
     surface.color = base.rgb;
     surface.alpha = base.a;
     surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
 	surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
-
 
 
     #if defined(_PREMULTIPLY_ALPHA)
@@ -98,10 +95,9 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 		BRDF brdf = GetBRDF(surface);
 	#endif
 
+
     float3 color = GetLighting(surface, brdf);
 	return float4(color, surface.alpha);
 }
-
-
 
 #endif

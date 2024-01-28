@@ -1,29 +1,14 @@
 #ifndef CUSTOM_UNLIT_PASS_INCLUDED
 #define CUSTOM_UNLIT_PASS_INCLUDED
 
+// UnLit Shader 라서 Light 와 관련된 연산은 모두 필요가 없다
 #include "../StandardLibrary/Common.hlsl"
 
-// Shader Resources, global scope 에 둔다?
+
 TEXTURE2D(_BaseMap);
 SAMPLER(sampler_BaseMap);
 
-
-// SRP Batcher 를 사용하기 위해서, material properties 를 concrete memory 에 담는다?
-// 그게 cbuffer, constant memory buffer
-// cbuffer UnityPerMaterial
-// {
-//     float4 _BaseColor;
-// };
-
-
-// SRP Batcher 를 쓸 때 사용한 옵션
-// CBUFFER_START(UnityPerMaterial)
-// 	float4 _BaseColor;
-// CBUFFER_END
-
-
-// GPU Instancing, per-instance material data 를 저장하기 위해서
-// unity per material buffer?
+// GPU Instancing, per-instance material data 를 저장
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
@@ -40,7 +25,6 @@ struct Attributes  // vertex shader input
     UNITY_VERTEX_INPUT_INSTANCE_ID   // object index
 };
 
-
 struct Varyings  // fragment shader input
 {
 	float4 positionCS : SV_POSITION;
@@ -49,10 +33,9 @@ struct Varyings  // fragment shader input
 };
 
 
-
 // vertex 들의 position 값을 계산하겠다 -> clip space
 // parameter 에도 이게 어떤 값인지를 알려준다 - semantic
-Varyings UnlitPassVertex(Attributes input) // : SV_POSITION , vertex position 을 리턴하지 않으니까
+Varyings UnlitPassVertex(Attributes input)
 {
     Varyings output;
 
@@ -61,7 +44,6 @@ Varyings UnlitPassVertex(Attributes input) // : SV_POSITION , vertex position �
 
     float3 positionWS = TransformObjectToWorld(input.positionOS);
     float4 positionHClip = TransformWorldToHClip(positionWS);
-
     output.positionCS = positionHClip;
 
     float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
@@ -71,30 +53,22 @@ Varyings UnlitPassVertex(Attributes input) // : SV_POSITION , vertex position �
     return output;
 }
 
-
-
-// render target 에 값은 넘긴다는 의미?
-float4 UnlitPassFragment(Varyings input) : SV_TARGET
+float4 UnlitPassFragment(Varyings input) : SV_TARGET // render target 에 값은 넘긴다는 의미?
 {
     // make instance index available
     UNITY_SETUP_INSTANCE_ID(input);
-
-    // // index 를 이용해서 instance material properties 에 접근?
-	// return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 
     float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
 	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 
     // texture 와 basecolor 의 곱 = 최종 색깔
 	float4 base = baseMap * baseColor;
-    
-    // clip 이라는 함수가 있어
+
 	#if defined(_CLIPPING)
 		clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
 	#endif
+
 	return base;
 }
-
-
 
 #endif

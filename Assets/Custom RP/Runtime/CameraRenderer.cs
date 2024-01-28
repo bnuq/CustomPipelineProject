@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Rendering;
+
 
 public partial class CameraRenderer
 {
@@ -11,60 +9,73 @@ public partial class CameraRenderer
     private static readonly ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
     private static readonly ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");
 
-    
-    private ScriptableRenderContext context;
-    private Camera camera;
-
-
-    private CommandBuffer commandBuffer = new CommandBuffer
+    private readonly CommandBuffer commandBuffer = new CommandBuffer
     {
         name = COMMAND_BUFFER_NAME,
     };
 
+    private readonly Lighting lighting = new();
+    
+
+    private ScriptableRenderContext context;
+    private Camera camera;
     private CullingResults cullingResults;
 
-    private Lighting lighting = new();
 
-
-    public void Render(ScriptableRenderContext context, Camera camera,
-                       bool useDynamicBatching, bool useGPUInstancing)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
     {
         this.context = context;
         this.camera = camera;
 
+        // Editor Only
         this.PrepareBuffer();
         this.PrepareForSceneWindow();
+
         if (!this.Cull())
         {
             return;
         }
-
         this.Setup();
         this.lighting.Setup(context, cullingResults);
         this.DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
+        
+        // Editor Only
         this.DrawUnsupportedShaders();
         this.DrawGizmos();
+        
         this.Submit();
     }
 
 
+    private bool Cull()
+    {
+        if (this.camera.TryGetCullingParameters(out var cullingParameters))
+        {
+            this.cullingResults = this.context.Cull(ref cullingParameters);
+            return true;
+        }
+        else
+        {
+            this.cullingResults = default;
+            return false;
+        }
+    }
+
     private void Setup()
     {
-        // Camera property �� ���� �����ϰ� context �� Ŭ���� �ϴ� �� �� ȿ�����̴�?
         this.context.SetupCameraProperties(this.camera);
 
         var flags = this.camera.clearFlags; // how to clear background
-
-        this.commandBuffer.ClearRenderTarget(
+        this.commandBuffer.ClearRenderTarget
+        (
             flags <= CameraClearFlags.Depth, 
             flags <= CameraClearFlags.Color, 
             flags <= CameraClearFlags.Color ? this.camera.backgroundColor.linear
-                                            : Color.clear);
+                                            : Color.clear
+        );
 
         this.commandBuffer.BeginSample(this.SampleName);
-
         this.ExecuteBuffer();
-
     }
 
     private void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
@@ -83,19 +94,17 @@ public partial class CameraRenderer
 
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
-        this.context.DrawRenderers(this.cullingResults, ref drawingSettings, ref filteringSettings);
 
+        this.context.DrawRenderers(this.cullingResults, ref drawingSettings, ref filteringSettings);
         this.context.DrawSkybox(this.camera);
 
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
-
         filteringSettings.renderQueueRange = RenderQueueRange.transparent;
 
         this.context.DrawRenderers(this.cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
-    // �����ٸ��� Commands �� submit �ؾ� �Ѵ�
     private void Submit()
     {
         this.commandBuffer.EndSample(this.SampleName);
@@ -105,24 +114,7 @@ public partial class CameraRenderer
 
     private void ExecuteBuffer()
     { 
-        // command buffer �� �׾Ƶ� ���ɵ��� context �� �ѱ�
         this.context.ExecuteCommandBuffer(this.commandBuffer);
         this.commandBuffer.Clear();
-    }
-
-    private bool Cull()
-    {
-        // culling �� �ʿ��� ������ ī�޶󿡼� �ٷ� ������ �� �ִ�
-        if (this.camera.TryGetCullingParameters(out var cullingParameters))
-        {
-            // ī�޶󿡼� ���� culling parameters -> context �� �־ culling result �� ��´�?
-            this.cullingResults = this.context.Cull(ref cullingParameters);
-            return true;
-        }
-        else
-        {
-            this.cullingResults = default;
-            return false;
-        }
     }
 }

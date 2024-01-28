@@ -21,9 +21,6 @@ public class PerObjectMaterialProperties : MonoBehaviour
     [SerializeField, Range(0f, 1f)]
 	private float smoothness = 0.5f;
 
-
-    // Material 에 색 값을 넘기는 역할, 클래스에 하나만 있으면 된다?
-    // 재활용하면 되니까?
     private MaterialPropertyBlock materialPropertyBlock;
 
 
