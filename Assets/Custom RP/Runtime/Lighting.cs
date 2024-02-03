@@ -11,10 +11,13 @@ public class Lighting
     private static readonly int dirLightCountId = Shader.PropertyToID("_DirectionalLightCount");
     private static readonly int dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors");
 	private static readonly int dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections");
+    private static readonly int dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
 
 
     private readonly Vector4[] dirLightColors = new Vector4[maxDirLightCount];
     private readonly Vector4[] dirLightDirections = new Vector4[maxDirLightCount];
+    private readonly Vector4[] dirLightShadowData = new Vector4[maxDirLightCount];
+
     private readonly CommandBuffer buffer = new()
     {
 		name = bufferName
@@ -72,6 +75,7 @@ public class Lighting
 		buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
 		buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
 		buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+        buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
     }
 
     private void SetupDirectionalLight(int index, ref VisibleLight visibleLight)
@@ -80,6 +84,6 @@ public class Lighting
         // matrix 의 3번째 column 이 광원의 방향?
 		dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
 
-        shadows.ReserveDirectionalShadows(visibleLight.light, index);
+        dirLightShadowData[index] = shadows.ReserveDirectionalShadows(visibleLight.light, index);
     }
 }

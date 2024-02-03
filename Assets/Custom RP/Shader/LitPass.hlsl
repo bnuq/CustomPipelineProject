@@ -1,11 +1,12 @@
 #ifndef CUSTOM_LIT_PASS_INCLUDED
 #define CUSTOM_LIT_PASS_INCLUDED
 
-#include "../StandardLibrary/Common.hlsl"
-#include "../StandardLibrary/Surface.hlsl"
-#include "../StandardLibrary/Light.hlsl"
-#include "../StandardLibrary/BRDF.hlsl"
-#include "../StandardLibrary/Lighting.hlsl"
+#include "../ShaderLibrary/Common.hlsl"
+#include "../ShaderLibrary/Surface.hlsl"
+#include "../ShaderLibrary/Shadows.hlsl"
+#include "../ShaderLibrary/Light.hlsl"
+#include "../ShaderLibrary/BRDF.hlsl"
+#include "../ShaderLibrary/Lighting.hlsl"
 
 
 // 매크로
@@ -81,6 +82,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     
     Surface surface;
 
+    surface.position = input.positionWS;
     surface.normal = normalize(input.normalWS);
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
     surface.color = base.rgb;

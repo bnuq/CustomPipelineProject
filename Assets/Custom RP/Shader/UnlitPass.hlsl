@@ -2,7 +2,7 @@
 #define CUSTOM_UNLIT_PASS_INCLUDED
 
 // UnLit Shader 라서 Light 와 관련된 연산은 모두 필요가 없다
-#include "../StandardLibrary/Common.hlsl"
+#include "../ShaderLibrary/Common.hlsl"
 
 
 TEXTURE2D(_BaseMap);

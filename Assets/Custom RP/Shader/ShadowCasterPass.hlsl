@@ -1,7 +1,7 @@
 #ifndef CUSTOM_SHADOW_CASTER_PASS_INCLUDED
 #define CUSTOM_SHADOW_CASTER_PASS_INCLUDED
 
-#include "../StandardLibrary/Common.hlsl"
+#include "../ShaderLibrary/Common.hlsl"
 
 
 TEXTURE2D(_BaseMap);
