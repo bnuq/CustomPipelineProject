@@ -13,7 +13,14 @@ public class Shadows
 
     private static readonly int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
     private static readonly int dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+    private static readonly int cascadeCountId = Shader.PropertyToID("_CascadeCount");
+    private static readonly int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
+    private static readonly int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+
+
     private static readonly Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
+    private static readonly Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
+
 
 	private const string bufferName = "Shadows";
     private const int maxShadowedDirectionalLightCount = 4;
@@ -111,7 +118,17 @@ public class Shadows
         }
 
         // Send Matrices to GPU
+        buffer.SetGlobalInt(cascadeCountId, this.shadowSettings.directional.cascadeCount);
+        buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+        
+        var f = 1.0f - this.shadowSettings.directional.cascadeFade;
+        buffer.SetGlobalVector(shadowDistanceFadeId,
+            new Vector4(1.0f / this.shadowSettings.maxDistance, 
+                        1.0f / this.shadowSettings.distanceFade,
+                        1.0f / (1.0f - f * f))
+        );
+        
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }
@@ -146,6 +163,15 @@ public class Shadows
 
 
             shadowDrawingSettings.splitData = splitData;
+
+            // first light
+            if (index == 0)
+            {
+                var cullingSphere = splitData.cullingSphere;
+                cullingSphere.w *= cullingSphere.w;  // culling sphere radius 제곱을 미리 계산
+                cascadeCullingSpheres[i] = cullingSphere;
+            }
+
 
             var tileIndex = tileOffset + i;
             dirShadowMatrices[tileIndex] 
