@@ -3,7 +3,7 @@ Shader "Custom_RP/Unlit"
 	Properties 
 	{
 		_BaseMap("Texture", 2D) = "white" {}  // unity default texture 사용
-		_BaseColor("Color", Color) = (1.0, 0.0, 1.0, 1.0)
+		[HDR] _BaseColor("Color", Color) = (1.0, 0.0, 1.0, 1.0)
 
 		// source ~ 이번에 그려지는 것
 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend", Float) = 1
@@ -19,6 +19,11 @@ Shader "Custom_RP/Unlit"
 
 	SubShader
 	{
+		HLSLINCLUDE
+		#include "../ShaderLibrary/Common.hlsl"
+		#include "UnlitInput.hlsl"
+		ENDHLSL
+
 		Pass 
 		{
 			Blend [_SrcBlend] [_DstBlend]
@@ -56,6 +61,23 @@ Shader "Custom_RP/Unlit"
 			#pragma vertex ShadowCasterPassVertex
 			#pragma fragment ShadowCasterPassFragment
 			#include "ShadowCasterPass.hlsl"
+			ENDHLSL
+		}
+
+		Pass
+		{
+			Tags
+			{
+				"LightMode" = "Meta"
+			}
+
+			Cull Off
+
+			HLSLPROGRAM
+			#pragma target 3.5
+			#pragma vertex MetaPassVertex
+			#pragma fragment MetaPassFragment
+			#include "MetaPass.hlsl"
 			ENDHLSL
 		}
 	}

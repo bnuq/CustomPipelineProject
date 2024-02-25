@@ -1,19 +1,19 @@
 #ifndef CUSTOM_UNLIT_PASS_INCLUDED
 #define CUSTOM_UNLIT_PASS_INCLUDED
 
-// UnLit Shader 라서 Light 와 관련된 연산은 모두 필요가 없다
-#include "../ShaderLibrary/Common.hlsl"
+//// UnLit Shader 라서 Light 와 관련된 연산은 모두 필요가 없다
+//#include "../ShaderLibrary/Common.hlsl"
 
 
-TEXTURE2D(_BaseMap);
-SAMPLER(sampler_BaseMap);
+//TEXTURE2D(_BaseMap);
+//SAMPLER(sampler_BaseMap);
 
-// GPU Instancing, per-instance material data 를 저장
-UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
-	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
-    UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
-UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+//// GPU Instancing, per-instance material data 를 저장
+//UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+//    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
+//	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+//    UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+//UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 
 // GPU Instancing, 그려지는 각 object 의 인덱스를 이용
@@ -46,9 +46,13 @@ Varyings UnlitPassVertex(Attributes input)
     float4 positionHClip = TransformWorldToHClip(positionWS);
     output.positionCS = positionHClip;
 
-    float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-    // xy = scale, zw = offset
-	output.baseUV = input.baseUV * baseST.xy + baseST.zw;
+ //   float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+ //   // xy = scale, zw = offset
+	//output.baseUV = input.baseUV * baseST.xy + baseST.zw;
+
+
+    output.baseUV = TransformBaseUV(input.baseUV);
+
 
     return output;
 }
@@ -58,15 +62,23 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET // render target 에 값은
     // make instance index available
     UNITY_SETUP_INSTANCE_ID(input);
 
-    float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
-	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+ //   float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
+	//float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 
-    // texture 와 basecolor 의 곱 = 최종 색깔
-	float4 base = baseMap * baseColor;
+ //   // texture 와 basecolor 의 곱 = 최종 색깔
+	//float4 base = baseMap * baseColor;
 
+	//#if defined(_CLIPPING)
+	//	clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
+	//#endif
+
+
+    float4 base = GetBase(input.baseUV);
 	#if defined(_CLIPPING)
-		clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
+		clip(base.a - GetCutoff(input.baseUV));
 	#endif
+
+
 
 	return base;
 }
