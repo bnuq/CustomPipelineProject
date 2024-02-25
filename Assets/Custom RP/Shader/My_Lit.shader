@@ -16,7 +16,12 @@ Shader "Custom_RP/Lit"
 
 		// 셰이더에서 사용하는 키워드 / 프로퍼티 이름
 		[Toggle(_CLIPPING)] _Clipping ("Alpha Clipping", Float) = 0
+
+		[KeywordEnum(On, Clip, Dither, Off)] _Shadows ("Shadows", Float) = 0
+
 		[Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha ("Premultiply Alpha", Float) = 0
+
+		[Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows ("Receive Shadows", Float) = 1
 
 		_Metallic ("Metallic", Range(0, 1)) = 0
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
@@ -40,8 +45,13 @@ Shader "Custom_RP/Lit"
 			#pragma target 3.5
 
 			// HLSL 에서 사용할 셰이더 키워드 선언 및 사용 <- shader_feature, multi_compile
-			#pragma shader_feature _CLIPPING
+			#pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
 			#pragma shader_feature _PREMULTIPLY_ALPHA
+			#pragma shader_feature _RECEIVE_SHADOWS
+
+			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
+			#pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+
 			// GPU Instancing 을 사용하기 위해서
 			#pragma multi_compile_instancing
 
@@ -63,7 +73,8 @@ Shader "Custom_RP/Lit"
 
 			HLSLPROGRAM
 			#pragma target 3.5
-			#pragma shader_feature _CLIPPING
+			//#pragma shader_feature _CLIPPING
+			#pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
 			#pragma multi_compile_instancing
 			#pragma vertex ShadowCasterPassVertex
 			#pragma fragment ShadowCasterPassFragment

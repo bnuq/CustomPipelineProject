@@ -38,6 +38,26 @@ Shader "Custom_RP/Unlit"
 			#include "UnlitPass.hlsl"
 			ENDHLSL
 		}
+
+		Pass
+		{
+			Tags
+			{
+				"LightMode" = "ShadowCaster"  // Unity Engine 에서 ShadowCaster pass 가 있어야 DrawShadows 를 실행한다
+			}
+
+			ColorMask 0
+
+			HLSLPROGRAM
+			#pragma target 3.5
+			//#pragma shader_feature _CLIPPING
+			#pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
+			#pragma multi_compile_instancing
+			#pragma vertex ShadowCasterPassVertex
+			#pragma fragment ShadowCasterPassFragment
+			#include "ShadowCasterPass.hlsl"
+			ENDHLSL
+		}
 	}
 
 	CustomEditor "CustomShaderGUI"

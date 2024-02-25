@@ -3,7 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class ShadowSettings 
 {
-	public enum TextureSize 
+	public enum TextureSize
     {
 		_256 = 256, 
         _512 = 512, 
@@ -13,13 +13,28 @@ public class ShadowSettings
         _8192 = 8192
 	}
 
+	public enum FilterMode 
+	{
+		PCF2x2, PCF3x3, PCF5x5, PCF7x7
+	}
+
+    public enum CascadeBlendMode
+    {
+        Hard, Soft, Dither
+    }
+
+
     [System.Serializable]
 	public struct Directional 
     {
 		public TextureSize atlasSize;
 
+		public FilterMode filter;
 
-		[Range(1, 4)]
+        public CascadeBlendMode cascadeBlend;
+
+
+        [Range(1, 4)]
 		public int cascadeCount;
 
 		[Range(0f, 1f)]
@@ -42,6 +57,9 @@ public class ShadowSettings
 	public Directional directional = new()
     {
 		atlasSize = TextureSize._1024,
+		filter = FilterMode.PCF2x2,
+		cascadeBlend = CascadeBlendMode.Hard,
+
 		cascadeCount = 4,
 		cascadeRatio1 = 0.1f,
 		cascadeRatio2 = 0.25f,
